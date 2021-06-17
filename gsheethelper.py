@@ -7,6 +7,7 @@ from gspread_formatting import CellFormat, Color, TextFormat
 from gspread_formatting import *
 import os
 import win32api, win32con
+import GSheetClient
 
 def get_master_url():
     mainconfigfile = os.path.join(os.environ["APPDATA"], 'gspread', 'main_config.properties')
@@ -20,7 +21,7 @@ def get_master_url():
     return url
     
 MASTER_URL = get_master_url()
-gclient = gspread.oauth()
+gclient = GSheetClient.gclient
 masterbook = gclient.open_by_url(MASTER_URL)
 
 writerworkbooks = {}

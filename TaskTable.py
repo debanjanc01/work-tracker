@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
-import TaskData
+from taskdata import TaskData
 
 
 class TaskTableWidget(QTableWidget):
