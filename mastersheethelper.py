@@ -28,13 +28,18 @@ writerdetails = __get_writers()
 
 def __get_sheets():
     worksheets = masterbook.worksheets()
-    sheetnames = []
+    sheets = dict()
     for worksheet in worksheets:
         sheetname = worksheet.title
-        sheetnames.append(sheetname)
-    return sheetnames
+        sheets[sheetname] = worksheet
+    return sheets
 
 mastersheets = __get_sheets()
+
+def create_master_sheet(sheetname):
+    sheet  = masterbook.add_worksheet(sheetname, 100, 15)
+    mastersheets[sheetname] = sheet
+    return sheet
 
 def get_projects():
     sheet = masterbook.worksheet('Projects')

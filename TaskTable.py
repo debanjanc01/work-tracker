@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
 from taskdata import TaskData
-
+import logging
 
 class TaskTableWidget(QTableWidget):
     def __init__(self):
@@ -18,6 +18,7 @@ class TaskTableWidget(QTableWidget):
 
 
     def addRow(self, rowdata : TaskData):
+        logging.info('adding table row' + str(rowdata))
         rowcount  = self.rowCount()
         self.insertRow(rowcount)
         self.setItem(rowcount, 0, QTableWidgetItem(rowdata.date))
@@ -37,6 +38,7 @@ class TaskTableWidget(QTableWidget):
             super().keyPressEvent(event)
 
     def retrieveData(self):
+        logging.info('retreiving table data')
         taskItems = []
         rows = self.rowCount()
         cols = self.columnCount()
@@ -51,7 +53,7 @@ class TaskTableWidget(QTableWidget):
             wp = self.item(row, 6).text()
             inc = self.item(row, 7).text()
 
-            task = TaskData.TaskData(date, project, topic, wc, writer, cp, wp, inc)
+            task = TaskData(date, project, topic, wc, writer, cp, wp, inc)
             taskItems.append(task)
 
         return taskItems

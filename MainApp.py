@@ -1,9 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QLineEdit, QWidget, QDateEdit, QComboBox, QVBoxLayout, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QApplication, QDesktopWidget, QDockWidget, QGridLayout, QLabel, QLineEdit, QWidget, QDateEdit, QComboBox, QVBoxLayout, QPushButton, QMessageBox
+from PyQt5.QtGui import QMovie
 from PyQt5 import QtCore
 import TaskTable
-import gsheethelper as gs
-import TaskData
+import mastersheethelper
+import taskwriter as tw
+import taskdata
+import logging
 
 class TaskApp(QWidget):
     def __init__(self):
@@ -102,6 +105,7 @@ class TaskApp(QWidget):
         submit.clicked.connect(self.saveToSheets)
         mainLayout.addWidget(submit,6,0,2,3)
 
+        
         self.setLayout(mainLayout)
 
         for i in range(mainLayout.rowCount()):
@@ -137,7 +141,7 @@ class TaskApp(QWidget):
             QMessageBox.warning(self, 'Warning', 'Writer Pay is required!')
             return
         income = self.income.text().strip()
-        taskData = TaskData.TaskData(date, project, topic, wordcount, writer, clientPay, writerPay, income)
+        taskData = taskdata.TaskData(date, project, topic, wordcount, writer, clientPay, writerPay, income)
         self.table.addRow(taskData)
         clearContents(self)
 
@@ -158,9 +162,8 @@ class TaskApp(QWidget):
 
         
     def saveToSheets(self):
-        print('saving to sheets')
         tasks = self.table.retrieveData()
-        ret = gs.saveTasks(tasks)
+        ret = tw.save_tasks_to_sheets(tasks)
         if ret is not None:
             QMessageBox.warning(self, 'Warning', ret)
         else:
@@ -169,11 +172,11 @@ class TaskApp(QWidget):
         self.table.setRowCount(0)
 
 def setDropDownValues(taskApp : TaskApp):
-    writers = gs.getWriters()
-    for writer in writers:
-        taskApp.writer_box.addItem(writer)
+    writers = mastersheethelper.writerdetails
+    for writername in writers:
+        taskApp.writer_box.addItem(writername)
 
-    projects = gs.getProjects()
+    projects = mastersheethelper.get_projects()
     for project in projects:
         id = project['Project ID']
         name = project['Project Name']
@@ -191,8 +194,13 @@ def clearContents(taskApp : TaskApp):
     taskApp.income.setText('')
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    demo = TaskApp()
-    setDropDownValues(demo)
-    demo.show()
-    app.exit(app.exec_())
+    try:
+        logging.basicConfig(filename='myapp.log', level=logging.INFO, format='%(asctime)s - [%(filename)s:%(lineno)d] - %(levelname)s - %(message)s')
+        logging.info('App started')
+        app = QApplication(sys.argv)
+        taskapp = TaskApp()
+        setDropDownValues(taskapp)
+        taskapp.show()
+        app.exit(app.exec_())
+    except Exception as Argument:
+        logging.exception('Something wicked happened!')
